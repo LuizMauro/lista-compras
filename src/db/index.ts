@@ -1,14 +1,13 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { v4 as uuidv4 } from "uuid";
 
-type ListItem = {
+export type ListItem = {
   id: string;
   name: string;
   quantity: number;
   unitaryValue: number;
 };
 
-type ListOfList = {
+export type ListOfList = {
   id: string;
   name: string;
   items: ListItem[];
@@ -42,18 +41,22 @@ export const getListById = async (
   }
 };
 
-export const createList = async (name: string): Promise<string> => {
-  const lists = await getLists();
+export const createList = async (name: string): Promise<string | undefined> => {
+  try {
+    const lists = await getLists();
 
-  const value: ListOfList = {
-    id: uuidv4(),
-    name,
-    items: [],
-  };
+    const value: ListOfList = {
+      id: Date.now().toString(),
+      name,
+      items: [],
+    };
 
-  lists.push(value);
-  await AsyncStorage.setItem("@lists", JSON.stringify(lists));
-  return value.id;
+    lists.push(value);
+    await AsyncStorage.setItem("@lists", JSON.stringify(lists));
+    return value.id;
+  } catch (error) {
+    console.log(error);
+  }
 };
 
 export const updateList = async (list: ListOfList): Promise<void> => {
@@ -78,7 +81,7 @@ export const addItemInList = async (
 
   if (list) {
     list.items.push({
-      id: uuidv4(),
+      id: Date.now().toString(),
       name,
       quantity,
       unitaryValue,
